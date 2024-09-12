@@ -1,0 +1,62 @@
+# EXAMPLE USAGE:
+#
+#   Refer for explanation to following link:
+#   https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
+#
+ pre-push:
+   commands:
+     packages-audit:
+       tags: frontend security
+       run: yarn audit
+#     gems-audit:
+#      tags: backend security
+#       run: bundle audit
+#
+# pre-commit:
+#   parallel: true
+#   commands:
+#     eslint:
+#       glob: "*.{js,ts,jsx,tsx}"
+#       run: yarn eslint {staged_files}
+#     rubocop:
+#       tags: backend style
+#       glob: "*.rb"
+#       exclude: '(^|/)(application|routes)\.rb$'
+#       run: bundle exec rubocop --force-exclusion {all_files}
+#     govet:
+#       tags: backend style
+#       files: git ls-files -m
+#       glob: "*.go"
+#       run: go vet {files}
+#   scripts:
+#     "hello.js":
+#       runner: node
+#     "any.go":
+#       runner: go run
+commit-msg:
+  commands:
+    validate:
+      run: >
+        npx git-conventional-commits commit-msg-hook {1}
+
+pre-commit:
+  parallel: true
+  commands:
+    lint:misc:
+      glob: '*.{html,json,yml}'
+      run: npx prettier --write {staged_files}
+    lint:css:
+      glob: '*.{css,scss}'
+      run: >
+        npx stylelint --fix {staged_files} &&
+        npx prettier --write {staged_files}
+    lint:js:
+      glob: '*[!.{spec,test}].{[tj]s,[tj]sx}'
+      run: >
+        npx eslint --fix {staged_files} && 
+        npx vitest related {staged_files} --passWithNoTests --run --environment jsdom
+    test:unit:
+      glob: '*.{spec,test}.{[tj]s,[tj]sx}'
+      run: >
+        npx eslint --fix {staged_files} &&
+        npx vitest {staged_files} --run --environment jsdom
